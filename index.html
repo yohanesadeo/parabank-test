@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabel Test Case Fungsional - Parabank</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style kustom untuk tag priority */
+        .priority-high { background-color: #FECACA; color: #991B1B; }
+        .priority-medium { background-color: #FEF3C7; color: #92400E; }
+        .priority-low { background-color: #D1FAE5; color: #065F46; }
+        
+        /* Style untuk status */
+        .status-todo { background-color: #DBEAFE; color: #1E40AF; }
+        
+        /* Tambahkan border antar baris untuk memisahkan test case dengan jelas */
+        tbody tr {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+        /* Styling untuk tombol paginasi */
+        .pagination-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .pagination-btn.active {
+            background-color: #2563EB; /* bg-blue-600 */
+            color: white;
+            border-color: #2563EB;
+        }
+        /* Styling untuk modal */
+        #json-editor-modal {
+            transition: opacity 0.3s ease;
+        }
+
+        /* --- STYLING UNTUK PRINT PDF --- */
+        @media print {
+            /* Sembunyikan semua elemen di body kecuali container print */
+            body > *:not(#print-container) {
+                display: none !important;
+            }
+            /* Tampilkan container print dan pastikan menempati seluruh halaman */
+            #print-container {
+                display: block !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+            }
+            /* Styling tabel untuk print */
+            #print-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 10px; /* Perkecil font agar muat */
+            }
+            #print-table th, #print-table td {
+                border: 1px solid #ddd;
+                padding: 6px;
+                text-align: left;
+            }
+            #print-table th {
+                background-color: #f2f2f2;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="mb-6 text-center">
+            <h1 id="header" class="text-3xl sm:text-4xl font-bold text-gray-900">Daftar Test Case Fungsional</h1>
+            <p class="mt-2 text-lg text-gray-600">Aplikasi Parabank</p>
+        </header>
+
+        <!-- Grup tombol Aksi -->
+        <div class="flex justify-end mb-4 space-x-2">
+            <button id="export-pdf-btn" class="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75">
+                Export to PDF
+            </button>
+            <button id="open-editor-btn" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75">
+                Edit Data JSON
+            </button>
+        </div>
+
+        <!-- Container untuk tabel agar responsif -->
+        <div class="overflow-x-auto bg-white rounded-lg shadow-md">
+            <table class="w-full text-sm text-left text-gray-600">
+                <thead class="bg-gray-100 text-xs text-gray-700 uppercase">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">Nomor TC</th>
+                        <th scope="col" class="px-6 py-3">Module</th>
+                        <th scope="col" class="px-6 py-3">Deskripsi Skenario</th>
+                        <th scope="col" class="px-6 py-3">Test Steps & Data</th>
+                        <th scope="col" class="px-6 py-3">Expected Result</th>
+                        <th scope="col" class="px-6 py-3 text-center">Priority</th>
+                        <th scope="col" class="px-6 py-3 text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="test-case-table-body">
+                    <!-- Data akan diisi oleh JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Container -->
+        <div id="pagination-wrapper" class="flex justify-center items-center mt-6">
+            <!-- Tombol paginasi akan dibuat oleh JavaScript -->
+        </div>
+
+         <footer class="text-center mt-8 text-sm text-gray-500">
+            <p>Generated dynamically from JSON data.</p>
+        </footer>
+    </div>
+
+    <!-- Modal untuk Editor JSON -->
+    <div id="json-editor-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl transform transition-all">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 class="text-lg font-semibold">JSON Editor</h3>
+                <button id="close-editor-btn" class="text-gray-400 hover:text-gray-600">&times;</button>
+            </div>
+            <div class="p-4">
+                <textarea id="json-editor" class="w-full h-96 p-2 border rounded-md font-mono text-sm"></textarea>
+                <p id="json-error-msg" class="text-red-500 text-sm mt-2 hidden"></p>
+            </div>
+            <div class="flex justify-end p-4 bg-gray-50 rounded-b-lg">
+                <button id="cancel-editor-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md mr-2 hover:bg-gray-300">Cancel</button>
+                <button id="save-json-btn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container khusus untuk konten print (disembunyikan secara default) -->
+    <div id="print-container" class="hidden"></div>
+
+
+    <script>
+        // --- VARIABEL GLOBAL & DATA DEFAULT ---
+        let currentTestCases = [];
+        const defaultTestCases = [
+          {"Nomor TC":"FUNC-REG-001","Tipe Module":"Register","Deskripsi Skenario":"Memverifikasi pengguna dapat berhasil mendaftar akun baru.","Pre Condition":"Pengguna belum terdaftar.","Test Steps":["Buka halaman utama.","Klik 'Register'.","Isi semua field dengan data valid & unik.","Klik tombol 'Register'."],"Test Data":{"Username":"newuser_test_01","Password":"password123"},"Expected":"Pengguna berhasil terdaftar, melihat pesan selamat datang, dan otomatis login.","Actual":"","Priority":"High","Status":"To Do"},
+          {"Nomor TC":"FUNC-REG-002","Tipe Module":"Register","Deskripsi Skenario":"Memverifikasi sistem menolak pendaftaran jika username sudah digunakan.","Pre Condition":"Username 'john' sudah ada.","Test Steps":["Buka halaman registrasi.","Isi semua field, gunakan username 'john'.","Klik 'Register'."],"Test Data":{"Username":"john"},"Expected":"Sistem menampilkan pesan error 'This username already exists.'.","Actual":"","Priority":"Medium","Status":"To Do"},
+          {"Nomor TC":"FUNC-REG-003","Tipe Module":"Register","Deskripsi Skenario":"Memverifikasi sistem menolak pendaftaran jika password dan konfirmasi password tidak cocok.","Pre Condition":"Pengguna di halaman registrasi.","Test Steps":["Isi semua field dengan valid.","Masukkan 'password123' di field Password.","Masukkan 'password456' di field Confirm.","Klik 'Register'."],"Test Data":{"Password":"password123","Confirm":"password456"},"Expected":"Sistem menampilkan pesan error 'Passwords did not match.'.","Actual":"","Priority":"Medium","Status":"To Do"},
+          {"Nomor TC":"FUNC-ONA-001","Tipe Module":"Open New Account","Deskripsi Skenario":"Memverifikasi pengguna dapat membuka rekening baru tipe CHECKING.","Pre Condition":"Pengguna sudah login.","Test Steps":["Klik menu 'Open New Account'.","Pilih 'CHECKING'.","Klik 'Open New Account'."],"Test Data":null,"Expected":"Sistem menampilkan pesan 'Account Opened!' dan nomor rekening baru.","Actual":"","Priority":"High","Status":"To Do"},
+          {"Nomor TC":"FUNC-TF-001","Tipe Module":"Transfer Funds","Deskripsi Skenario":"Memverifikasi transfer dana antar rekening berhasil.","Pre Condition":"Pengguna login, punya >1 rekening dengan saldo cukup.","Test Steps":["Navigasi ke 'Transfer Funds'.","Masukkan jumlah.","Pilih rekening sumber & tujuan.","Klik 'Transfer'."],"Test Data":{"Amount":"100"},"Expected":"Halaman 'Transfer Complete!' ditampilkan, saldo ter-update.","Actual":"","Priority":"High","Status":"To Do"},
+          {"Nomor TC":"FUNC-TF-002","Tipe Module":"Transfer Funds","Deskripsi Skenario":"Memverifikasi sistem menolak transfer jika saldo tidak mencukupi.","Pre Condition":"Pengguna login, saldo rekening sumber < jumlah transfer.","Test Steps":["Navigasi ke 'Transfer Funds'.","Masukkan jumlah transfer yang lebih besar dari saldo.","Pilih rekening sumber & tujuan.","Klik 'Transfer'."],"Test Data":{"Amount":"999999"},"Expected":"Proses transfer gagal dan idealnya menampilkan pesan error tentang saldo tidak cukup (Meskipun aplikasi ini mungkin tidak menanganinya dengan baik).","Actual":"","Priority":"Medium","Status":"To Do"},
+          {"Nomor TC":"FUNC-BP-001","Tipe Module":"Bill Pay","Deskripsi Skenario":"Memverifikasi pembayaran tagihan berhasil.","Pre Condition":"Pengguna login dan saldo cukup.","Test Steps":["Navigasi ke 'Bill Pay'.","Isi semua info 'Payee'.","Isi 'Amount'.","Pilih 'From account'.","Klik 'Send Payment'."],"Test Data":{"Amount":"50"},"Expected":"Halaman 'Bill Payment Complete' ditampilkan.","Actual":"","Priority":"High","Status":"To Do"},
+          {"Nomor TC":"FUNC-BP-002","Tipe Module":"Bill Pay","Deskripsi Skenario":"Memverifikasi sistem menolak pembayaran jika nomor akun dan verifikasi tidak cocok.","Pre Condition":"Pengguna login.","Test Steps":["Navigasi ke 'Bill Pay'.","Isi info payee.","Isi 'Account #' dengan '12345'.","Isi 'Verify Account #' dengan '54321'.","Klik 'Send Payment'."],"Test Data":{"Account":"12345","Verify Account":"54321"},"Expected":"Sistem menampilkan pesan error 'Account numbers do not match.'.","Actual":"","Priority":"Medium","Status":"To Do"},
+          {"Nomor TC":"FUNC-FT-001","Tipe Module":"Find Transactions","Deskripsi Skenario":"Memverifikasi pengguna dapat mencari transaksi berdasarkan ID.","Pre Condition":"Pengguna login, ada histori transaksi.","Test Steps":["Navigasi ke 'Find Transactions'.","Pilih rekening.","Isi 'Find by Transaction ID' dengan ID valid.","Klik 'Find Transactions'."],"Test Data":{"Transaction ID":"[ID Valid]"},"Expected":"Halaman 'Transaction Results' menampilkan detail transaksi yang dicari.","Actual":"","Priority":"Medium","Status":"To Do"},
+          {"Nomor TC":"FUNC-FT-002","Tipe Module":"Find Transactions","Deskripsi Skenario":"Memverifikasi hasil pencarian kosong jika ID transaksi tidak ditemukan.","Pre Condition":"Pengguna login.","Test Steps":["Navigasi ke 'Find Transactions'.","Pilih rekening.","Isi 'Find by Transaction ID' dengan ID tidak valid.","Klik 'Find Transactions'."],"Test Data":{"Transaction ID":"99999"},"Expected":"Halaman 'Transaction Results' ditampilkan namun tidak ada hasil transaksi yang muncul.","Actual":"","Priority":"Low","Status":"To Do"},
+          {"Nomor TC":"FUNC-UCI-001","Tipe Module":"Update Contact Info","Deskripsi Skenario":"Memverifikasi pengguna dapat memperbarui informasi kontak.","Pre Condition":"Pengguna sudah login.","Test Steps":["Navigasi ke 'Update Contact Info'.","Ubah salah satu field, misal 'Phone #'.","Klik 'Update Profile'."],"Test Data":{"Phone #":"08987654321"},"Expected":"Sistem menampilkan pesan 'Profile Updated'.","Actual":"","Priority":"Medium","Status":"To Do"},
+          {"Nomor TC":"FUNC-RL-001","Tipe Module":"Request Loan","Deskripsi Skenario":"Memverifikasi pengajuan pinjaman disetujui jika data valid.","Pre Condition":"Pengguna login, saldo cukup untuk down payment.","Test Steps":["Navigasi ke 'Request Loan'.","Isi 'Loan Amount' & 'Down Payment'.","Pilih 'From account'.","Klik 'Apply Now'."],"Test Data":{"Loan Amount":"5000","Down Payment":"500"},"Expected":"Halaman 'Loan Request Processed' ditampilkan dengan status 'Approved'.","Actual":"","Priority":"High","Status":"To Do"},
+          {"Nomor TC":"FUNC-RL-002","Tipe Module":"Request Loan","Deskripsi Skenario":"Memverifikasi pengajuan pinjaman ditolak jika dana di rekening tidak cukup untuk down payment.","Pre Condition":"Pengguna login, saldo di rekening < down payment.","Test Steps":["Navigasi ke 'Request Loan'.","Isi 'Loan Amount' dengan 5000.","Isi 'Down Payment' dengan jumlah yang lebih besar dari saldo.","Pilih 'From account'.","Klik 'Apply Now'."],"Test Data":{"Loan Amount":"5000","Down Payment":"999999"},"Expected":"Sistem menampilkan pesan error atau status pinjaman 'Denied' karena dana tidak mencukupi.","Actual":"","Priority":"Medium","Status":"To Do"}
+        ];
+        document.addEventListener("DOMContentLoaded", (event) => {
+          let currentHeader = document.querySelector("#header").innerHTML;
+          document.querySelector("#header").innerHTML = "Loading content test case ..."
+          setTimeout(() => {
+            document.querySelector("#header").innerHTML = currentHeader;
+            localStorage.setItem('parabankTestCases', JSON.stringify(defaultTestCases));
+          }, 2000);
+});
+        
+
+        const rowsPerPage = 10;
+        let currentPage = 1;
+
+        // --- ELEMEN DOM ---
+        const modal = document.getElementById('json-editor-modal');
+        const openEditorBtn = document.getElementById('open-editor-btn');
+        const closeEditorBtn = document.getElementById('close-editor-btn');
+        const cancelEditorBtn = document.getElementById('cancel-editor-btn');
+        const saveJsonBtn = document.getElementById('save-json-btn');
+        const jsonEditor = document.getElementById('json-editor');
+        const jsonErrorMsg = document.getElementById('json-error-msg');
+        const exportPdfBtn = document.getElementById('export-pdf-btn');
+
+        // --- FUNGSI-FUNGSI ---
+
+        // Fungsi untuk menampilkan/menyembunyikan modal
+        function toggleModal(show) {
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+        
+        // Render tabel utama
+        function renderTable(items) {
+            const tableBody = document.getElementById('test-case-table-body');
+            if (!tableBody) return;
+            tableBody.innerHTML = ''; 
+
+            items.forEach(tc => {
+                const row = document.createElement('tr');
+                row.className = "bg-white hover:bg-gray-50";
+                
+                const createCell = (content, classes = '') => {
+                    const cell = document.createElement('td');
+                    cell.className = `px-6 py-4 ${classes}`;
+                    cell.innerHTML = content;
+                    return cell;
+                };
+
+                let stepsHtml = `<ol class="list-decimal list-inside text-xs">` + tc["Test Steps"].map(step => `<li>${step}</li>`).join('') + `</ol>`;
+                if (tc["Test Data"]) {
+                    stepsHtml += `<div class="mt-2 pt-2 border-t border-gray-200"><strong class="text-xs text-gray-500">Test Data:</strong><pre class="text-xs bg-gray-100 p-1 rounded-md mt-1 whitespace-pre-wrap">${JSON.stringify(tc["Test Data"], null, 2)}</pre></div>`;
+                }
+
+                const priorityClass = `priority-${tc.Priority.toLowerCase()}`;
+                const priorityBadge = `<span class="px-2 py-1 text-xs font-medium rounded-full ${priorityClass}">${tc.Priority}</span>`;
+                
+                const statusClass = `status-${tc.Status.toLowerCase().replace(/\s+/g, '')}`;
+                const statusBadge = `<span class="px-2 py-1 text-xs font-medium rounded-full ${statusClass}">${tc.Status}</span>`;
+
+                row.appendChild(createCell(`<strong class="font-medium text-gray-900">${tc["Nomor TC"]}</strong>`));
+                row.appendChild(createCell(tc["Tipe Module"]));
+                row.appendChild(createCell(`<div class="font-normal text-gray-900">${tc["Deskripsi Skenario"]}</div><div class="font-normal text-gray-500 mt-1 text-xs"><strong>Pre-Cond:</strong> ${tc["Pre Condition"]}</div>`));
+                row.appendChild(createCell(stepsHtml));
+                row.appendChild(createCell(tc["Expected"]));
+                row.appendChild(createCell(priorityBadge, 'text-center'));
+                row.appendChild(createCell(statusBadge, 'text-center'));
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Setup Paginasi
+        function setupPagination(items, wrapper) {
+            wrapper.innerHTML = "";
+            const pageCount = Math.ceil(items.length / rowsPerPage);
+            if (pageCount <= 1) return;
+
+            for (let i = 1; i <= pageCount; i++) {
+                const btn = document.createElement('button');
+                btn.innerText = i;
+                btn.className = 'pagination-btn px-4 py-2 mx-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100';
+                
+                if (currentPage === i) {
+                    btn.classList.add('active');
+                }
+
+                btn.addEventListener('click', () => {
+                    currentPage = i;
+                    initializeApp(items);
+                });
+                wrapper.appendChild(btn);
+            }
+        }
+
+        // Menampilkan halaman berdasarkan data dan nomor halaman
+        function displayPage(items) {
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const paginatedItems = items.slice(startIndex, endIndex);
+            renderTable(paginatedItems);
+        }
+
+        // Fungsi utama untuk inisialisasi atau re-render
+        function initializeApp(data) {
+            displayPage(data);
+            const paginationWrapper = document.getElementById('pagination-wrapper');
+            setupPagination(data, paginationWrapper);
+        }
+
+        // Memuat data dari localStorage atau menggunakan default
+        function loadData() {
+            const storedData = localStorage.getItem('parabankTestCases');
+            if (storedData) {
+                try {
+                    currentTestCases = JSON.parse(storedData);
+                } catch (e) {
+                    console.error("Gagal parse data dari localStorage, menggunakan data default.", e);
+                    currentTestCases = defaultTestCases;
+                }
+            } else {
+                currentTestCases = defaultTestCases;
+            }
+        }
+
+        // --- FUNGSI BARU UNTUK PRINT ---
+        function renderForPrint(items) {
+            const printContainer = document.getElementById('print-container');
+            if (!printContainer) return;
+
+            const tableHeaders = `
+                <tr>
+                    <th>Nomor TC</th>
+                    <th>Module</th>
+                    <th>Deskripsi Skenario</th>
+                    <th>Test Steps</th>
+                    <th>Expected Result</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                </tr>`;
+
+            const tableRows = items.map(tc => {
+                const stepsText = tc["Test Steps"].map((step, index) => `${index + 1}. ${step}`).join('<br>');
+                return `
+                    <tr>
+                        <td>${tc["Nomor TC"]}</td>
+                        <td>${tc["Tipe Module"]}</td>
+                        <td>${tc["Deskripsi Skenario"]}</td>
+                        <td>${stepsText}</td>
+                        <td>${tc["Expected"]}</td>
+                        <td>${tc.Priority}</td>
+                        <td>${tc.Status}</td>
+                    </tr>`;
+            }).join('');
+
+            printContainer.innerHTML = `
+                <h2 style="text-align: center; margin-bottom: 20px;">Daftar Test Case Fungsional - Parabank</h2>
+                <table id="print-table">
+                    <thead>${tableHeaders}</thead>
+                    <tbody>${tableRows}</tbody>
+                </table>`;
+        }
+
+
+        // --- EVENT LISTENERS ---
+
+        // Buka modal editor
+        openEditorBtn.addEventListener('click', () => {
+            jsonEditor.value = JSON.stringify(currentTestCases, null, 2); 
+            jsonErrorMsg.classList.add('hidden');
+            toggleModal(true);
+        });
+
+        // Tutup modal
+        closeEditorBtn.addEventListener('click', () => toggleModal(false));
+        cancelEditorBtn.addEventListener('click', () => toggleModal(false));
+
+        // Simpan perubahan dari editor
+        saveJsonBtn.addEventListener('click', () => {
+            try {
+                const newData = JSON.parse(jsonEditor.value);
+                localStorage.setItem('parabankTestCases', JSON.stringify(newData));
+                currentTestCases = newData;
+                currentPage = 1; 
+                initializeApp(currentTestCases);
+                toggleModal(false);
+            } catch (e) {
+                jsonErrorMsg.textContent = 'Error: Format JSON tidak valid. Periksa kembali data Anda.';
+                jsonErrorMsg.classList.remove('hidden');
+            }
+        });
+
+        // Tombol Export PDF
+        exportPdfBtn.addEventListener('click', () => {
+            renderForPrint(currentTestCases); // Siapkan konten untuk dicetak
+            window.print(); // Panggil dialog cetak browser
+        });
+
+
+        // Event listener saat halaman selesai dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            initializeApp(currentTestCases);
+        });
+    </script>
+
+</body>
+</html>
+
