@@ -1,30 +1,38 @@
 package com.juaracoding.parabank.hooks;
 
-import org.openqa.selenium.WebDriver;
+import java.util.HashMap;
+
+import org.openqa.selenium.firefox.FirefoxDriver;
+
+import com.juaracoding.parabank.context.DriverContext;
 
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 
 public class DriverHook {
+    private DriverContext driverContext;
 
-    private WebDriver driver;
-
-    protected WebDriver getDriver() {
-        return driver;
+    public DriverHook(DriverContext driverContext) {
+        this.driverContext = driverContext;
+        this.driverContext.password = "123qwe";
+        this.driverContext.username = "YanzenSquadDev";
+        this.driverContext.dataProvider = new HashMap<>();
+        this.driverContext.dataProvider.put("username", "andika");
+        this.driverContext.dataProvider.put("password", "123qweqwe");
     }
 
     @Before
     public void setup() {
-        System.out.println("setup");
-        // FirefoxOptions options = new FirefoxOptions();
-        // options.addArguments("--incognito");
-        // driver = new FirefoxDriver();
-        // driver.get(baseURL);
+        driverContext.driver = new FirefoxDriver();
+        driverContext.driver.manage().window().maximize();
     }
 
     @After
-    public void teardown() {
-        // driver.quit();
-        System.out.println("teardown");
+    public void teardown() throws InterruptedException {
+        if (driverContext.driver != null) {
+            Thread.sleep(4000);
+            // driverContext.driver.quit();
+            driverContext.dataProvider = null;
+        }
     }
 }
