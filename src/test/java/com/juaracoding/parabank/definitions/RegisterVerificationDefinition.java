@@ -1,5 +1,7 @@
 package com.juaracoding.parabank.definitions;
 
+import org.testng.Assert;
+
 import com.juaracoding.parabank.context.DriverContext;
 import com.juaracoding.parabank.pages.HomePage;
 import com.juaracoding.parabank.pages.RegisterPage;
@@ -30,34 +32,34 @@ public class RegisterVerificationDefinition {
 
     @When("Klik 'Register'.")
     public void step02() {
-        System.out.println("Klik register");
         homePage.clickRegisterLink();
     }
 
     @And("Isi semua field dengan data valid & unik.")
     public void step03() {
-        registerPage.inputFirstName("User " + randomUsername);
-        registerPage.inputLastName("Santoso");
-        registerPage.inputAddress("Blok M");
-        registerPage.inputCity("Bandung");
-        registerPage.inputState("Jawa Barat");
-        registerPage.inputZip("12345");
-        registerPage.inputPhone("08123456789");
-        registerPage.inputSSN("123456789");
-        registerPage.inputUsername(randomUsername);
-        registerPage.inputPassword("123qwe");
-        registerPage.inputConfirmPassword("123qwe");
-        registerPage.clickRegisterButton();
+        registerPage.setFirstName("User " + randomUsername);
+        registerPage.setLastName("Santoso");
+        registerPage.setAddress("Jl. Jalanan");
+        registerPage.setCity("Jakarta");
+        registerPage.setState("Indonesia");
+        registerPage.setZipCode("11234");
+        registerPage.setPhoneNumber("0895567123");
+        registerPage.setSsn("123456");
+        registerPage.setUsername(randomUsername);
+        registerPage.setPassword("123qwe");
+        registerPage.setRepeatPassword("123qwe");
     }
 
     @And("Klik tombol 'Register'.")
     public void step04() {
-
+        registerPage.clickRegisterButton();
     }
 
     @Then("Pengguna berhasil terdaftar, melihat pesan selamat datang, dan otomatis login.")
     public void step05() {
-
+        Assert.assertEquals(registerPage.getTitleText(), "Welcome " + randomUsername);
+        Assert.assertEquals(registerPage.getParagraphText(),
+                "Your account was created successfully. You are now logged in.");
     }
 
 }

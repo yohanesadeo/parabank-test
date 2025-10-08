@@ -1,7 +1,5 @@
 package com.juaracoding.parabank.hooks;
 
-import java.util.HashMap;
-
 import org.openqa.selenium.firefox.FirefoxDriver;
 
 import com.juaracoding.parabank.context.DriverContext;
@@ -15,10 +13,7 @@ public class DriverHook {
     public DriverHook(DriverContext driverContext) {
         this.driverContext = driverContext;
         this.driverContext.password = "123qwe";
-        this.driverContext.username = "YanzenSquadDev";
-        this.driverContext.dataProvider = new HashMap<>();
-        this.driverContext.dataProvider.put("username", "andika");
-        this.driverContext.dataProvider.put("password", "123qweqwe");
+        this.driverContext.username = "serlybolobolo";
     }
 
     @Before
@@ -31,7 +26,7 @@ public class DriverHook {
     public void teardown() throws InterruptedException {
         if (driverContext.driver != null) {
             Thread.sleep(4000);
-            // driverContext.driver.quit();
+            driverContext.driver.quit();
             driverContext.dataProvider = null;
         }
     }

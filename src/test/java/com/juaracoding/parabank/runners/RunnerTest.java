@@ -5,21 +5,18 @@ import org.testng.annotations.BeforeClass;
 import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
 
-@CucumberOptions(
-  features = {
-    "src/test/resources/features/Register.feature"
-  },
-  glue = {
+@CucumberOptions(features = {
+    "src/test/resources/features/01_Register.feature",
+    "src/test/resources/features/02_Account.feature",
+}, glue = {
     "com.juaracoding.parabank.hooks",
     "com.juaracoding.parabank.definitions",
-  }
-  // plugin = { "pretty" } 
-)
+}, tags = (""), plugin = { "pretty", "html:target/cucumber-reports.html" })
 public class RunnerTest extends AbstractTestNGCucumberTests {
 
   @BeforeClass
   public void beforeClass() {
     System.out.println("Ini before class!");
   }
-  
+
 }

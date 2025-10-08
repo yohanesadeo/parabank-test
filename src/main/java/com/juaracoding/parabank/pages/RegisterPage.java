@@ -5,19 +5,18 @@ import org.openqa.selenium.WebDriver;
 
 public class RegisterPage {
     private WebDriver driver;
-
-    private By firstName = By.id("customer.firstName");
-    private By lastName = By.id("customer.lastName");
-    private By address = By.id("customer.address.street");
-    private By city = By.id("customer.address.city");
-    private By state = By.id("customer.address.state");
-    private By zip = By.id("customer.address.zipCode");
-    private By phone = By.id("customer.phoneNumber");
-    private By ssn = By.id("customer.ssn");
-    private By username = By.id("customer.username");
-    private By password = By.id("customer.password");
-    private By confirmPassword = By.id("repeatedPassword");
-    private By registerButton = By.xpath("//input[@value='Register']");
+    private By firstNameBy = By.id("customer.firstName");
+    private By lastNameBy = By.id("customer.lastName");
+    private By addressBy = By.id("customer.address.street");
+    private By cityBy = By.id("customer.address.city");
+    private By stateBy = By.id("customer.address.state");
+    private By zipCodeBy = By.id("customer.address.zipCode");
+    private By phoneNumberBy = By.id("customer.phoneNumber");
+    private By ssnBy = By.id("customer.ssn");
+    private By usernameBy = By.id("customer.username");
+    private By passwordBy = By.id("customer.password");
+    private By repeatPasswordBy = By.id("repeatedPassword");
+    private By registerButtonBy = By.xpath("//input[@type='submit'  and @value='Register']");
     private By titleBy = By.xpath("//div[@id='rightPanel']/h1[@class='title']");
     private By paragraphBy = By.xpath("//div[@id='rightPanel']/p");
 
@@ -25,70 +24,63 @@ public class RegisterPage {
         this.driver = driver;
     }
 
-    public void inputFirstName(String firstName) {
-        driver.findElement(this.firstName).sendKeys(firstName);
+    public void setFirstName(String firstName) {
+        driver.findElement(firstNameBy).sendKeys(firstName);
     }
 
-    public void inputLastName(String lastName) {
-        driver.findElement(this.lastName).sendKeys(lastName);
+    public void setLastName(String lastName) {
+        driver.findElement(lastNameBy).sendKeys(lastName);
     }
 
-    public void inputAddress(String address) {
-        driver.findElement(this.address).sendKeys(address);
+    public void setAddress(String address) {
+        driver.findElement(addressBy).sendKeys(address);
     }
 
-    public void inputCity(String city) {
-        driver.findElement(this.city).sendKeys(city);
+    public void setCity(String city) {
+        driver.findElement(cityBy).sendKeys(city);
     }
 
-    public void inputState(String state) {
-        driver.findElement(this.state).sendKeys(state);
+    public void setState(String state) {
+        driver.findElement(stateBy).sendKeys(state);
     }
 
-    public void inputZip(String zip) {
-        driver.findElement(this.zip).sendKeys(zip);
+    public void setZipCode(String zipCode) {
+        driver.findElement(zipCodeBy).sendKeys(zipCode);
     }
 
-    public void inputPhone(String phone) {
-        driver.findElement(this.phone).sendKeys(phone);
+    public void setPhoneNumber(String phoneNumber) {
+        driver.findElement(phoneNumberBy).sendKeys(phoneNumber);
     }
 
-    public void inputSSN(String ssn) {
-        driver.findElement(this.ssn).sendKeys(ssn);
+    public void setSsn(String ssn) {
+        driver.findElement(ssnBy).sendKeys(ssn);
     }
 
-    public void inputUsername(String username) {
-        driver.findElement(this.username).sendKeys(username);
+    public void setUsername(String username) {
+        driver.findElement(usernameBy).sendKeys(username);
     }
 
-    public void inputPassword(String password) {
-        driver.findElement(this.password).sendKeys(password);
+    public void setPassword(String password) {
+        driver.findElement(passwordBy).sendKeys(password);
     }
 
-    public void inputConfirmPassword(String confirmPassword) {
-        driver.findElement(this.confirmPassword).sendKeys(confirmPassword);
+    public void setRepeatPassword(String repeatPassword) {
+        driver.findElement(repeatPasswordBy).sendKeys(repeatPassword);
     }
 
     public void clickRegisterButton() {
-        driver.findElement(this.registerButton).click();
+        driver.findElement(registerButtonBy).click();
     }
 
-    public void register(String firstName, String lastName, String address, String city, String state, String zip,
-            String phone, String ssn, String username, String password, String confirmPassword) {
-        inputFirstName(firstName);
-        inputLastName(lastName);
-        inputAddress(address);
-        inputCity(city);
-        inputState(state);
-        inputZip(zip);
-        inputPhone(phone);
-        inputSSN(ssn);
-        inputUsername(username);
-        inputPassword(password);
-        inputConfirmPassword(confirmPassword);
-        clickRegisterButton();
+    public String getTitleText() {
+        return driver.findElement(titleBy).getText();
     }
 
-    
+    public String getParagraphText() {
+        return driver.findElement(paragraphBy).getText();
+    }
 
+    public void register() {
+
+    }
 }
