@@ -4,11 +4,13 @@ import java.util.Map;
 
 import org.openqa.selenium.WebDriver;
 
+import com.juaracoding.parabank.models.User;
+
 public class DriverContext {
     public WebDriver driver;
 
-    public String username;
-    public String password;
+    public User user;
 
     public Map<String, String> dataProvider;
+
 }

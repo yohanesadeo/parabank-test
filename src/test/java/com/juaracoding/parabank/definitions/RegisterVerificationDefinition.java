@@ -5,7 +5,6 @@ import org.testng.Assert;
 import com.juaracoding.parabank.context.DriverContext;
 import com.juaracoding.parabank.pages.HomePage;
 import com.juaracoding.parabank.pages.RegisterPage;
-import com.juaracoding.parabank.utils.TextGen;
 
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -16,13 +15,11 @@ public class RegisterVerificationDefinition {
     private HomePage homePage;
     private RegisterPage registerPage;
     private DriverContext driverContext;
-    private String randomUsername;
 
     public RegisterVerificationDefinition(DriverContext driverContext) {
         this.driverContext = driverContext;
         homePage = new HomePage(this.driverContext.driver);
         registerPage = new RegisterPage(this.driverContext.driver);
-        randomUsername = TextGen.getRandomString(10);
     }
 
     @Given("Buka halaman utama.")
@@ -37,17 +34,17 @@ public class RegisterVerificationDefinition {
 
     @And("Isi semua field dengan data valid & unik.")
     public void step03() {
-        registerPage.setFirstName("User " + randomUsername);
-        registerPage.setLastName("Santoso");
-        registerPage.setAddress("Jl. Jalanan");
-        registerPage.setCity("Jakarta");
-        registerPage.setState("Indonesia");
-        registerPage.setZipCode("11234");
-        registerPage.setPhoneNumber("0895567123");
-        registerPage.setSsn("123456");
-        registerPage.setUsername(randomUsername);
-        registerPage.setPassword("123qwe");
-        registerPage.setRepeatPassword("123qwe");
+        registerPage.setFirstName(driverContext.user.getFirstName());
+        registerPage.setLastName(driverContext.user.getLastName());
+        registerPage.setAddress(driverContext.user.getAddress());
+        registerPage.setCity(driverContext.user.getCity());
+        registerPage.setState(driverContext.user.getState());
+        registerPage.setZipCode(driverContext.user.getZipCode());
+        registerPage.setPhoneNumber(driverContext.user.getPhoneNumber());
+        registerPage.setSsn(driverContext.user.getSsn());
+        registerPage.setUsername(driverContext.user.getUsername());
+        registerPage.setPassword(driverContext.user.getPassword());
+        registerPage.setRepeatPassword(driverContext.user.getPassword());
     }
 
     @And("Klik tombol 'Register'.")
@@ -57,7 +54,7 @@ public class RegisterVerificationDefinition {
 
     @Then("Pengguna berhasil terdaftar, melihat pesan selamat datang, dan otomatis login.")
     public void step05() {
-        Assert.assertEquals(registerPage.getTitleText(), "Welcome " + randomUsername);
+        Assert.assertEquals(registerPage.getTitleText(), "Welcome " + driverContext.user.getUsername());
         Assert.assertEquals(registerPage.getParagraphText(),
                 "Your account was created successfully. You are now logged in.");
     }

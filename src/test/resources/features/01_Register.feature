@@ -1,5 +1,7 @@
+@Auth
 Feature: Register
 
+  @SmokeTest
   Scenario: Memverifikasi pengguna dapat berhasil mendaftar akun baru.
     Given Buka halaman utama.
     When Klik 'Register'.

@@ -11,7 +11,11 @@ import io.cucumber.testng.CucumberOptions;
 }, glue = {
     "com.juaracoding.parabank.hooks",
     "com.juaracoding.parabank.definitions",
-}, tags = (""), plugin = { "pretty", "html:target/cucumber-reports.html" })
+}, tags = (""), plugin = {
+    "pretty",
+    "html:target/cucumber-reports.html",
+    "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"
+})
 public class RunnerTest extends AbstractTestNGCucumberTests {
 
   @BeforeClass
